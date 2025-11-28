@@ -142,3 +142,24 @@ def create_features(
         y_train_reg,
         y_test_reg,
     )
+
+
+    # ... (al final de preprocessing.py)
+
+def create_integrated_features(
+    data_clustered: pd.DataFrame, 
+    target_col: str = "category"
+) -> Tuple[pd.DataFrame, pd.Series, pd.DataFrame, pd.Series]:
+    """
+    Prepara los datos para el modelo integrado.
+    Usa el DataFrame que salió del clustering (que ya tiene 'cluster_kmeans', 'age', etc.)
+    """
+    # Definir X e y
+    # data_clustered ya viene con todo listo del pipeline anterior
+    X = data_clustered.drop(columns=[target_col])
+    y = data_clustered[target_col]
+    
+    # Split (mismo random_state para comparar peras con peras)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    
+    return X_train, y_train, X_test, y_test

@@ -135,3 +135,52 @@ metrics_svr_reg:
 metrics_gb_reg:
   type: json.JSONDataset
   filepath: data/07_model_output/regression/metrics_gb_reg.json
+
+
+  # =================================================
+# === APRENDIZAJE NO SUPERVISADO (Evaluación 3) ===
+# =================================================
+
+# --- Datos Intermedios (Input para clustering) ---
+model_input_unsupervised:
+  type: pandas.ParquetDataset
+  filepath: data/02_intermediate/model_input_unsupervised.parquet
+
+# --- Modelos No Supervisados (Pickle) ---
+model_kmeans:
+  type: pickle.PickleDataset
+  filepath: data/06_models/unsupervised/model_kmeans.pkl
+
+model_hierarchical:
+  type: pickle.PickleDataset
+  filepath: data/06_models/unsupervised/model_hierarchical.pkl
+
+model_dbscan:
+  type: pickle.PickleDataset
+  filepath: data/06_models/unsupervised/model_dbscan.pkl
+
+model_pca:
+  type: pickle.PickleDataset
+  filepath: data/06_models/unsupervised/model_pca.pkl
+
+# --- Datos con Clusters Asignados (Output) ---
+data_clustered_kmeans:
+  type: pandas.ParquetDataset
+  filepath: data/03_primary/data_clustered_kmeans.parquet
+
+data_clustered_hc:
+  type: pandas.ParquetDataset
+  filepath: data/03_primary/data_clustered_hc.parquet
+
+data_clustered_dbscan:
+  type: pandas.ParquetDataset
+  filepath: data/03_primary/data_clustered_dbscan.parquet
+
+data_pca:
+  type: pandas.ParquetDataset
+  filepath: data/03_primary/data_pca.parquet
+
+  # --- Integración Supervisado + No Supervisado ---
+model_integrated_final:
+  type: pickle.PickleDataset
+  filepath: data/06_models/integration/model_integrated_final.pkl

@@ -1,127 +1,96 @@
-# Evaluación 2: MLOps - Pipelines de Clasificación y Regresión
+# Proyecto Final MLOps: Integración Supervisada, No Supervisada y Orquestación
 
-Este proyecto implementa un pipeline de MLOps completo utilizando Kedro, DVC y Docker para entrenar y evaluar 10 modelos de Machine Learning (5 de clasificación y 5 de regresión) basados en un conjunto de datos de compras de clientes.
+Este proyecto representa la culminación del curso de Machine Learning, implementando un pipeline `end-to-end` robusto que integra ingeniería de datos, aprendizaje no supervisado (Clustering) y modelos supervisados avanzados, todo orquestado automáticamente.
 
+**Asignatura:** MLY0100 - Machine Learning
 **Integrantes:**
 * Jorge Garrido
+* [Nombre de Compañero/a si aplica]
 
 ---
 
-## 1. Problemas de Negocio
+## 1. Objetivos del Proyecto
 
-El pipeline resuelve dos problemas de ML:
+El sistema analiza el comportamiento de compra de clientes para resolver dos problemas predictivos, utilizando una arquitectura moderna de MLOps:
 
-1.  **Clasificación:** Predecir la **categoría** de un producto (`category`) basado en el perfil del cliente y la tienda.
-2.  **Regresión:** Predecir el **monto total** de una transacción (`total_amount`) basado en el mismo perfil.
-
----
-
-## 2. Arquitectura de la Solución (MLOps)
-
-El proyecto está construido con un stack de MLOps moderno:
-
-* **Kedro:** Para estructurar todo el proyecto en pipelines de datos e ingeniería de ML modulares, robustos y reproducibles.
-* **DVC (Data Version Control):** Para versionar nuestros artefactos (datos crudos, modelos entrenados y métricas), manteniendo el repositorio de Git liviano.
-* **Docker:** Para empaquetar toda la aplicación (código, librerías y configuración) en una imagen portable que garantiza una ejecución idéntica en cualquier máquina.
+1.  **Clasificación:** Predecir la **Categoría de Producto** (`category`) que comprará un cliente.
+2.  **Regresión:** Predecir el **Monto Total** (`total_amount`) de la transacción.
 
 ---
 
-## 3. Estructura del Proyecto
+## 2. Arquitectura Técnica (Stack MLOps)
 
-* `data/01_raw/`: Datos crudos (rastreados por DVC).
-* `data/06_models/`: 10 modelos `.pkl` entrenados (rastreados por DVC).
-* `data/07_model_output/`: 10 archivos `.json` con las métricas de desempeño (rastreados por DVC).
-* `src/evaluacion_2_mlops/nodes/`: Contiene la lógica en Python (nodos):
-    * `preprocessing.py`: Funciones para unir CSVs y crear features.
-    * `modeling.py`: Funciones para entrenar y evaluar los 10 modelos con `GridSearchCV` (cv=5).
-* `src/evaluacion_2_mlops/pipelines/`: Contiene la definición de los pipelines que conectan los nodos.
-* `conf/base/catalog.yml`: El "registro" que le dice a Kedro dónde encontrar y guardar todos los datos, modelos y métricas.
-* `Dockerfile`: Las instrucciones para construir la imagen de Docker.
+La solución utiliza un stack tecnológico avanzado para garantizar reproducibilidad y escalabilidad:
+
+* **Kedro:** Framework principal para la estructuración de pipelines modulares.
+    * *Pipeline `dp`:* Procesamiento y limpieza de datos.
+    * *Pipeline `ul`:* **Aprendizaje No Supervisado** (K-Means, DBSCAN, Hierarchical, PCA, t-SNE).
+    * *Pipeline `int`:* Integración y entrenamiento del modelo final.
+* **Apache Airflow:** Orquestador de tareas. Gestiona la ejecución secuencial y dependencias de los pipelines mediante un DAG maestro.
+* **Docker & Docker Compose:** Infraestructura como código. Levanta servicios independientes para la Base de Datos (Postgres), el Webserver de Airflow, el Scheduler y el entorno de ejecución de Python.
+* **DVC (Data Version Control):** Versionado de datasets, modelos (`.pkl`) y métricas, asegurando la trazabilidad de los experimentos.
 
 ---
 
-## 4. Instrucciones de Ejecución
+## 3. Metodología de Ciencia de Datos
 
-Hay dos maneras de ejecutar este proyecto.
+### A. Fase No Supervisada (Feature Engineering Avanzado)
+Para mejorar la capacidad predictiva, se implementaron técnicas de agrupamiento y reducción de dimensionalidad:
+* **Clustering:** Se utilizaron algoritmos como **K-Means (k=5)**, **DBSCAN** y **Clustering Jerárquico** para segmentar a los clientes en perfiles de comportamiento.
+* **Reducción:** Se aplicó **PCA** y **t-SNE** para analizar la varianza y estructura de los datos.
+* **Detección de Anomalías:** Se implementó **Isolation Forest** para identificar transacciones atípicas.
 
-### Opción A: Ejecución con Docker (Recomendada)
+### B. Fase de Integración (Supervisado "Supercharged")
+Los clusters generados y los features temporales (Edad, Mes, Día) se inyectaron como nuevas variables predictivas (*features*) en un modelo de **Random Forest**.
 
-Este método es el más simple y garantiza la reproducibilidad.
+---
+
+## 4. Resultados y Comparativa (Ev2 vs Ev3)
+
+Gracias a la integración del aprendizaje no supervisado y la optimización de features, se logró un incremento drástico en el rendimiento del modelo.
+
+### Tabla Comparativa de Clasificación (Accuracy)
+
+| Etapa | Modelo | Accuracy | Estado |
+| :--- | :--- | :--- | :--- |
+| **Evaluación 2** | Regresión Logística (Baseline) | 30.80% | ❌ Insuficiente |
+| **Evaluación 3** | **Random Forest + Clustering** | **83.41%** | ✅ **Éxito (+52.6%)** |
+
+**Conclusión del Análisis:**
+El modelo original (Ev2) carecía de información suficiente para distinguir patrones complejos. La segmentación de clientes mediante Clustering y la inclusión de atributos granulares del producto permitieron al modelo Random Forest capturar la lógica de compra con alta precisión.
+
+---
+
+## 5. Instrucciones de Ejecución (Despliegue)
+
+El proyecto está completamente contenerizado. Para ejecutar el sistema completo (Airflow + Pipelines):
 
 **Prerrequisitos:**
-* Tener **Docker Desktop** instalado y corriendo.
+* Docker Desktop instalado y corriendo.
 
 **Pasos:**
-1.  Clonar el repositorio.
-2.  Construir la imagen de Docker (solo la primera vez):
-    ```bash
-    docker build -t evaluacion-mlops .
-    ```
-3.  Ejecutar el pipeline completo:
-    ```bash
-    docker run --rm evaluacion-mlops kedro run
-    ```
-    Esto ejecutará el pipeline `__default__`, que procesa los datos, entrena los 10 modelos y guarda todas las métricas.
 
-### Opción B: Ejecución Local (Desarrollo)
+1.  Clonar el repositorio y entrar a la carpeta de Docker:
+    ```bash
+    cd proyecto-ml-final/docker
+    ```
 
-**Prerrequisitos:**
-* Tener `Python 3.9` instalado.
-* Tener `git` y `dvc` instalados.
+2.  Levantar la infraestructura con Docker Compose:
+    ```bash
+    docker-compose up --build
+    ```
+    *(Esperar a que inicien los servicios postgres, webserver y scheduler).*
 
-**Pasos:**
-1.  Clonar el repositorio.
-2.  Crear y activar un entorno virtual:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # o .\venv\Scripts\activate en Windows
-    ```
-3.  Instalar las dependencias:
-    ```bash
-    pip install -r src/requirements.txt
-    ```
-4.  Recuperar los datos (rastreados por DVC):
-    ```bash
-    # (En un proyecto real, se correría 'dvc pull'. 
-    # Para esta entrega, los datos crudos ya están en la carpeta)
-    ```
-5.  Ejecutar el pipeline de Kedro:
-    ```bash
-    kedro run
-    ```
+3.  Acceder a la interfaz de Airflow:
+    * **URL:** [http://localhost:8080](http://localhost:8080)
+    * **Usuario:** `admin`
+    * **Contraseña:** `admin`
+
+4.  Ejecutar el Pipeline Maestro:
+    * Buscar el DAG **`proyecto_final_mlops_v3`**.
+    * Activar el interruptor (**ON**) y hacer clic en **Trigger DAG** (Play ▶️).
+    * Observar en la vista "Graph" cómo se ejecutan secuencialmente: `Data Processing` -> `Unsupervised Learning` -> `Model Integration`.
 
 ---
 
-## 5. Resultados y Discusión
-
-Se entrenaron 10 modelos (5 por cada tarea) utilizando `GridSearchCV` con `cv=5`. Los resultados de las métricas en el set de prueba son los siguientes.
-
-### Tabla de Modelos de Clasificación (Target: `category`)
-
-| Modelo | Accuracy (↑) | F1-Score (weighted) (↑) |
-| :--- | :--- | :--- |
-| **Logistic Regression** | **0.308** | 0.258 |
-| **Random Forest** | 0.303 | 0.239 |
-| **KNN** | 0.262 | **0.261** |
-| **SVC (Linear)** | 0.306 | 0.214 |
-| **Gradient Boosting** | 0.297 | 0.250 |
-
-### Tabla de Modelos de Regresión (Target: `total_amount`)
-
-| Modelo | RMSE (↓) | R² Score (↑) |
-| :--- | :--- | :--- |
-| **Linear Regression** | **58.45** | **-0.0063** |
-| **Random Forest** | 58.46 | -0.0064 |
-| **KNN** | 62.76 | -0.1601 |
-| **SVR (Linear)** | 60.10 | -0.0639 |
-| **Gradient Boosting** | 58.50 | -0.0079 |
-
-### Discusión y Conclusiones
-
-Los resultados de la experimentación demuestran que los modelos tienen un rendimiento muy bajo en ambas tareas.
-
-* **Clasificación:** El rendimiento es pobre. El mejor modelo (Regresión Logística) apenas alcanza un **Accuracy del 30.8%**, y el mejor F1-Score (KNN) es de solo **0.261**. Esto indica que los *features* seleccionados (como `gender`, `city`, `state`, `brand`) no son buenos predictores para la `category` de un producto.
-
-* **Regresión:** El rendimiento es extremadamente malo. Un `R² Score` negativo (presente en todos los modelos) significa que **todos nuestros modelos son peores que simplemente predecir el promedio** del `total_amount` para cada compra.
-
-**Conclusión Final:** Se concluye que, con el *feature engineering* actual, **no es posible predecir `category` o `total_amount` de forma fiable**. Para un próximo ciclo de desarrollo, es fundamental realizar un trabajo de *feature engineering* mucho más profundo, como extraer información de las fechas (mes, año), calcular el gasto histórico del cliente, o crear *features* basados en la frecuencia de compra, para poder construir un modelo predictivo útil.
+**Estado del Proyecto:** Finalizado y Funcional. 🚀

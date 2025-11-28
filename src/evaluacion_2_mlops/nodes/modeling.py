@@ -1,3 +1,4 @@
+# --- IMPORTACIONES ---
 import pandas as pd
 import logging
 from typing import Dict, Any
@@ -18,10 +19,11 @@ from sklearn.svm import SVR
 
 # --- Métricas ---
 from sklearn.metrics import accuracy_score, f1_score, mean_squared_error, r2_score
+# --- FIN DE IMPORTACIONES ---
+
 
 # Configura el logger
 log = logging.getLogger(__name__)
-
 
 def _squeeze_target(target):
     """Convierte DataFrames de una sola columna en Series."""
@@ -31,7 +33,7 @@ def _squeeze_target(target):
     return target.squeeze()
 
 # =================================================================
-# === 1. NODOS DE ENTRENAMIENTO DE CLASIFICACIÓN (5 MODELOS) ===
+# === 1. NODOS DE ENTRENAMIENTO DE CLASIFICACIÓN (Ev2) ===
 # =================================================================
 
 def train_logistic_regression(X_train: pd.DataFrame, y_train) -> Any:
@@ -45,7 +47,6 @@ def train_logistic_regression(X_train: pd.DataFrame, y_train) -> Any:
     return grid_search.best_estimator_
 
 def train_random_forest_class(X_train: pd.DataFrame, y_train) -> Any:
-    """Entrena un modelo de Random Forest Classifier con GridSearchCV."""
     y_train = _squeeze_target(y_train)
     model = RandomForestClassifier(random_state=42)
     param_grid = {'n_estimators': [50, 100], 'max_depth': [5, 10]}
@@ -55,7 +56,6 @@ def train_random_forest_class(X_train: pd.DataFrame, y_train) -> Any:
     return grid_search.best_estimator_
 
 def train_knn_class(X_train: pd.DataFrame, y_train) -> Any:
-    """Entrena un modelo de KNN Classifier con GridSearchCV."""
     y_train = _squeeze_target(y_train)
     model = KNeighborsClassifier()
     param_grid = {'n_neighbors': [3, 5, 7]}
@@ -65,17 +65,15 @@ def train_knn_class(X_train: pd.DataFrame, y_train) -> Any:
     return grid_search.best_estimator_
 
 def train_svc_class(X_train: pd.DataFrame, y_train) -> Any:
-    """Entrena un modelo de SVC con GridSearchCV."""
     y_train = _squeeze_target(y_train)
     model = SVC(random_state=42)
-    param_grid = {'C': [0.1, 1.0], 'kernel': ['linear']} # Evitamos 'rbf' por velocidad
+    param_grid = {'C': [0.1, 1.0], 'kernel': ['linear']} 
     grid_search = GridSearchCV(model, param_grid, cv=5, scoring='accuracy', n_jobs=-1)
     grid_search.fit(X_train, y_train)
     log.info(f"Mejores params (SVC): {grid_search.best_params_}")
     return grid_search.best_estimator_
 
 def train_gb_class(X_train: pd.DataFrame, y_train) -> Any:
-    """Entrena un modelo de Gradient Boosting Classifier con GridSearchCV."""
     y_train = _squeeze_target(y_train)
     model = GradientBoostingClassifier(random_state=42)
     param_grid = {'n_estimators': [50, 100], 'learning_rate': [0.1]}
@@ -85,11 +83,10 @@ def train_gb_class(X_train: pd.DataFrame, y_train) -> Any:
     return grid_search.best_estimator_
 
 # =================================================================
-# === 2. NODOS DE ENTRENAMIENTO DE REGRESIÓN (5 MODELOS) ===
+# === 2. NODOS DE ENTRENAMIENTO DE REGRESIÓN (Ev2) ===
 # =================================================================
 
 def train_linear_regression(X_train: pd.DataFrame, y_train) -> Any:
-    """Entrena un modelo de Regresión Lineal con GridSearchCV."""
     y_train = _squeeze_target(y_train)
     model = LinearRegression()
     param_grid = {'fit_intercept': [True, False]}
@@ -99,7 +96,6 @@ def train_linear_regression(X_train: pd.DataFrame, y_train) -> Any:
     return grid_search.best_estimator_
 
 def train_random_forest_reg(X_train: pd.DataFrame, y_train) -> Any:
-    """Entrena un modelo de Random Forest Regressor con GridSearchCV."""
     y_train = _squeeze_target(y_train)
     model = RandomForestRegressor(random_state=42)
     param_grid = {'n_estimators': [50, 100], 'max_depth': [5, 10]}
@@ -109,7 +105,6 @@ def train_random_forest_reg(X_train: pd.DataFrame, y_train) -> Any:
     return grid_search.best_estimator_
 
 def train_knn_reg(X_train: pd.DataFrame, y_train) -> Any:
-    """Entrena un modelo de KNN Regressor con GridSearchCV."""
     y_train = _squeeze_target(y_train)
     model = KNeighborsRegressor()
     param_grid = {'n_neighbors': [3, 5, 7]}
@@ -119,17 +114,15 @@ def train_knn_reg(X_train: pd.DataFrame, y_train) -> Any:
     return grid_search.best_estimator_
 
 def train_svr_reg(X_train: pd.DataFrame, y_train) -> Any:
-    """Entrena un modelo de SVR con GridSearchCV."""
     y_train = _squeeze_target(y_train)
     model = SVR()
-    param_grid = {'C': [0.1, 1.0], 'kernel': ['linear']} # Evitamos 'rbf' por velocidad
+    param_grid = {'C': [0.1, 1.0], 'kernel': ['linear']} 
     grid_search = GridSearchCV(model, param_grid, cv=5, scoring='neg_mean_squared_error', n_jobs=-1)
     grid_search.fit(X_train, y_train)
     log.info(f"Mejores params (SVR): {grid_search.best_params_}")
     return grid_search.best_estimator_
 
 def train_gb_reg(X_train: pd.DataFrame, y_train) -> Any:
-    """Entrena un modelo de Gradient Boosting Regressor con GridSearchCV."""
     y_train = _squeeze_target(y_train)
     model = GradientBoostingRegressor(random_state=42)
     param_grid = {'n_estimators': [50, 100], 'learning_rate': [0.1]}
@@ -139,28 +132,63 @@ def train_gb_reg(X_train: pd.DataFrame, y_train) -> Any:
     return grid_search.best_estimator_
 
 # =================================================================
-# === 3. NODOS DE EVALUACIÓN (2 NODOS) ===
+# === 3. NODOS DE EVALUACIÓN (Ev2) ===
 # =================================================================
 
 def evaluate_classification_model(model: Any, X_test: pd.DataFrame, y_test) -> Dict[str, float]:
-    """Calcula métricas para un modelo de clasificación."""
     y_test = _squeeze_target(y_test)
     preds = model.predict(X_test)
     accuracy = accuracy_score(y_test, preds)
     f1 = f1_score(y_test, preds, average='weighted')
-    
     metrics = {"accuracy": accuracy, "f1_score": f1}
     log.info(f"Métricas del modelo {type(model).__name__}: {metrics}")
     return metrics
 
 def evaluate_regression_model(model: Any, X_test: pd.DataFrame, y_test) -> Dict[str, float]:
-    """Calcula métricas para un modelo de regresión."""
     y_test = _squeeze_target(y_test)
     preds = model.predict(X_test)
     mse = mean_squared_error(y_test, preds)
     rmse = mse ** 0.5
     r2 = r2_score(y_test, preds)
-    
     metrics = {"rmse": rmse, "r2_score": r2}
     log.info(f"Métricas del modelo {type(model).__name__}: {metrics}")
     return metrics
+
+# =================================================================
+# === 4. NODOS DE INTEGRACIÓN (EVALUACIÓN 3 - "SUPERCHARGED") ===
+# =================================================================
+
+def train_integrated_model(X_train: pd.DataFrame, y_train: pd.Series, X_test: pd.DataFrame, y_test: pd.Series) -> Any:
+    """
+    Entrena el modelo supervisado usando features + clusters.
+    USAMOS RANDOM FOREST AQUÍ PARA APROVECHAR LA DATA EXTRA Y SUBIR LA MÉTRICA.
+    """
+    y_train = _squeeze_target(y_train)
+    y_test = _squeeze_target(y_test)
+    
+    log.info("Entrenando modelo integrado (Random Forest)...")
+    
+    # ⚠️ CAMBIO CLAVE: Random Forest en lugar de Regresión Logística
+    model = RandomForestClassifier(random_state=42)
+    
+    # GridSearch simplificado
+    param_grid = {'n_estimators': [50, 100], 'max_depth': [10, 20, None]}
+    grid_search = GridSearchCV(model, param_grid, cv=5, scoring='accuracy', n_jobs=-1)
+    grid_search.fit(X_train, y_train)
+    
+    best_model = grid_search.best_estimator_
+    
+    # Evaluar
+    preds = best_model.predict(X_test)
+    accuracy = accuracy_score(y_test, preds)
+    
+    # Comparar con el baseline de Ev2
+    BASELINE_ACCURACY = 0.3080 
+    improvement = accuracy - BASELINE_ACCURACY
+    
+    log.info(f"--- RESULTADOS INTEGRACIÓN ---")
+    log.info(f"Baseline (Ev2): {BASELINE_ACCURACY:.4f}")
+    log.info(f"Nuevo Accuracy: {accuracy:.4f} 🚀")
+    log.info(f"Mejora: {improvement:+.4f}")
+    
+    return best_model
