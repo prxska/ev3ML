@@ -1,0 +1,6 @@
+outs:
+- md5: 45e4cc6070550818d70db85510cb379c.dir
+  size: 722
+  nfiles: 11
+  hash: md5
+  path: 07_model_output

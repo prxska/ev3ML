@@ -1,0 +1,137 @@
+# Here you can define all your datasets by using simple YAML syntax.
+#
+# Documentation for this file format can be found in "The Data Catalog"
+# Link: https://docs.kedro.org/en/stable/data/data_catalog.html
+
+
+customer_profile:
+  type: pandas.CSVDataset  # <-- 's' minúscula
+  filepath: data/01_raw/customer_profile_dataset.csv
+
+products:
+  type: pandas.CSVDataset  # <-- 's' minúscula
+  filepath: data/01_raw/products_dataset.csv
+
+purchase_history:
+  type: pandas.CSVDataset  # <-- 's' minúscula
+  filepath: data/01_raw/purchase_history_dataset.csv
+
+primary_data:
+  type: pandas.ParquetDataset  # <-- 's' minúscula
+  filepath: data/02_intermediate/primary_data.parquet
+  
+
+
+  
+
+
+
+
+  #-----------------------------------------------------------
+
+
+
+  # =================================================
+# === DATOS DE FEATURES (Paso 2) ===
+# =================================================
+X_train_class:
+  type: pandas.ParquetDataset
+  filepath: data/03_primary/X_train_class.parquet
+X_test_class:
+  type: pandas.ParquetDataset
+  filepath: data/03_primary/X_test_class.parquet
+y_train_class:
+  type: pandas.ParquetDataset
+  filepath: data/03_primary/y_train_class.parquet
+y_test_class:
+  type: pandas.ParquetDataset
+  filepath: data/03_primary/y_test_class.parquet
+  
+X_train_reg:
+  type: pandas.ParquetDataset
+  filepath: data/03_primary/X_train_reg.parquet
+X_test_reg:
+  type: pandas.ParquetDataset
+  filepath: data/03_primary/X_test_reg.parquet
+y_train_reg:
+  type: pandas.ParquetDataset
+  filepath: data/03_primary/y_train_reg.parquet
+y_test_reg:
+  type: pandas.ParquetDataset
+  filepath: data/03_primary/y_test_reg.parquet
+
+# =================================================
+# === MODELOS DE CLASIFICACIÓN (Paso 3) ===
+# =================================================
+model_logistic_regression:
+  type: pickle.PickleDataset
+  filepath: data/06_models/classification/model_logistic_regression.pkl
+model_random_forest_class:
+  type: pickle.PickleDataset
+  filepath: data/06_models/classification/model_random_forest_class.pkl
+model_knn_class:
+  type: pickle.PickleDataset
+  filepath: data/06_models/classification/model_knn_class.pkl
+model_svc_class:
+  type: pickle.PickleDataset
+  filepath: data/06_models/classification/model_svc_class.pkl
+model_gb_class:
+  type: pickle.PickleDataset
+  filepath: data/06_models/classification/model_gb_class.pkl
+  
+# =================================================
+# === MODELOS DE REGRESIÓN (Paso 3) ===
+# =================================================
+model_linear_regression:
+  type: pickle.PickleDataset
+  filepath: data/06_models/regression/model_linear_regression.pkl
+model_random_forest_reg:
+  type: pickle.PickleDataset
+  filepath: data/06_models/regression/model_random_forest_reg.pkl
+model_knn_reg:
+  type: pickle.PickleDataset
+  filepath: data/06_models/regression/model_knn_reg.pkl
+model_svr_reg:
+  type: pickle.PickleDataset
+  filepath: data/06_models/regression/model_svr_reg.pkl
+model_gb_reg:
+  type: pickle.PickleDataset
+  filepath: data/06_models/regression/model_gb_reg.pkl
+
+# =================================================
+# === MÉTRICAS DE CLASIFICACIÓN (Paso 3) ===
+# =================================================
+metrics_logistic_regression:
+  type: json.JSONDataset
+  filepath: data/07_model_output/classification/metrics_logistic_regression.json
+metrics_random_forest_class:
+  type: json.JSONDataset
+  filepath: data/07_model_output/classification/metrics_random_forest_class.json
+metrics_knn_class:
+  type: json.JSONDataset
+  filepath: data/07_model_output/classification/metrics_knn_class.json
+metrics_svc_class:
+  type: json.JSONDataset
+  filepath: data/07_model_output/classification/metrics_svc_class.json
+metrics_gb_class:
+  type: json.JSONDataset
+  filepath: data/07_model_output/classification/metrics_gb_class.json
+
+# =================================================
+# === MÉTRICAS DE REGRESIÓN (Paso 3) ===
+# =================================================
+metrics_linear_regression:
+  type: json.JSONDataset
+  filepath: data/07_model_output/regression/metrics_linear_regression.json
+metrics_random_forest_reg:
+  type: json.JSONDataset
+  filepath: data/07_model_output/regression/metrics_random_forest_reg.json
+metrics_knn_reg:
+  type: json.JSONDataset
+  filepath: data/07_model_output/regression/metrics_knn_reg.json
+metrics_svr_reg:
+  type: json.JSONDataset
+  filepath: data/07_model_output/regression/metrics_svr_reg.json
+metrics_gb_reg:
+  type: json.JSONDataset
+  filepath: data/07_model_output/regression/metrics_gb_reg.json
