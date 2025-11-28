@@ -5,7 +5,7 @@ Este proyecto representa la culminación del curso de Machine Learning, implemen
 **Asignatura:** MLY0100 - Machine Learning
 **Integrantes:**
 * Jorge Garrido
-* [Nombre de Compañero/a si aplica]
+
 
 ---
 
